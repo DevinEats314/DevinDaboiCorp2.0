@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <button onclick="window.location.href='page3.html'">Go back</button>
+    <title>Word Guessing Game</title>
+    <style>
+        /* Add your CSS styles here */
+        #game-container {
+            display: none;
+        }
+        #game-over-screen {
+            display: none;
+        }
+        #game-over-message {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        #play-again-button {
+            font-size: 18px;
+            padding: 10px 20px;
+        }
+        #hangman {
+            font-family: monospace;
+            white-space: pre;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>Word Guessing Game</h1>
+        <div id="word-display"></div>
+        <input type="text" id="guess-input" placeholder="Enter your guess">
+        <button onclick="checkGuess()">Guess</button>
+        <p>Lives: <span id="lives">6</span></p>
+        <div id="hangman">Hangman:</div>
+    </div>
+
+    <div id="game-over-screen">
+        <div id="game-over-message"></div>
+        <button id="play-again-button" onclick="restartGame()">Play Again</button>
+    </div>
+
+    <script>
+        // Define your word list
+        const words = [
+            "apple", "banana", "orange", "strawberry", "pineapple",
+            "elephant", "sunshine", "pizza", "adventure", "guitar",
+            "chocolate", "butterfly", "ocean", "happiness", "dragonfly",
+            "mountain", "bicycle", "telephone", "umbrella", "keyboard",
+            "computer", "sunglasses", "watermelon", "caterpillar", "fireworks",
+            "backpack", "dolphin", "moonlight", "lighthouse", "buttercup"
+        ];
+
+        let chosenWord, remainingLetters, lives, hangmanState;
+        let wordDisplay = "";
+
+        function startGame() {
+            // Choose a random word
+            chosenWord = words[Math.floor(Math.random() * words.length)];
+            remainingLetters = chosenWord.length;
+            lives = 6;
+            hangmanState = 0;
+
+            // Display dashes representing each letter in the word
+            wordDisplay = "";
+            for (let i = 0; i < chosenWord.length; i++) {
+                wordDisplay += "_ ";
+            }
+            document.getElementById("word-display").textContent = wordDisplay;
+
+            document.getElementById("game-container").style.display = "block";
+        }
+
+        function checkGuess() {
+            let guess = document.getElementById("guess-input").value.toLowerCase();
+            if (guess.length !== 1) {
+                alert("Please enter only one letter at a time.");
+                return;
+            }
+            if (chosenWord.includes(guess)) {
+                // Reveal the guessed letter(s)
+                for (let i = 0; i < chosenWord.length; i++) {
+                    if (chosenWord[i] === guess) {
+                        wordDisplay = wordDisplay.substring(0, i * 2) + guess + wordDisplay.substring(i * 2 + 1);
+                        remainingLetters--;
+                    }
+                }
+                document.getElementById("word-display").textContent = wordDisplay;
+                if (remainingLetters === 0) {
+                    displayGameOver("Congratulations! You guessed the word: " + chosenWord);
+                }
+            } else {
+                // Decrease lives and update hangman display
+                lives--;
+                document.getElementById("lives").textContent = lives;
+                updateHangman();
+                if (lives === 0) {
+                    displayGameOver("Game over. The word was: " + chosenWord);
+                }
+            }
+            document.getElementById("guess-input").value = "";
+        }
+
+        function updateHangman() {
+            hangmanState++;
+            let hangmanDisplay = "Hangman:\n";
+            // Draw the hangman based on the current state
+            switch (hangmanState) {
+                case 1:
+                    hangmanDisplay += "  O\n";
+                    break;
+                case 2:
+                    hangmanDisplay += "  O\n  |\n";
+                    break;
+                case 3:
+                    hangmanDisplay += "  O\n /|\n";
+                    break;
+                case 4:
+                    hangmanDisplay += "  O\n /|\\\n";
+                    break;
+                case 5:
+                    hangmanDisplay += "  O\n /|\\\n /";
+                    break;
+                case 6:
+                    hangmanDisplay += "  O\n /|\\\n / \\\n";
+                    break;
+            }
+            document.getElementById("hangman").textContent = hangmanDisplay;
+        }
+
+        function displayGameOver(message) {
+            document.getElementById("game-over-message").textContent = message;
+            document.getElementById("game-container").style.display = "none";
+            document.getElementById("game-over-screen").style.display = "block";
+        }
+
+        function restartGame() {
+            document.getElementById("game-over-screen").style.display = "none";
+            startGame();
+        }
+
+        // Start the game when the page loads
+        window.onload = startGame;
+    </script>
+</body>
+</html>
